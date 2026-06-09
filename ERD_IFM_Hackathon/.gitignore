@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyc
+
+# Virtual environments
+ERD_Hack_env/
+.venv/
+venv/
+env/
+
+# Distribution
+dist/
+build/
+*.egg-info/
+
+# SQLite audit database (runtime data)
+*.db
+*.sqlite3
+
+# ChromaDB vector store
+chroma_db/
+
+# IsolationForest model artifacts
+src/detection/models/*.pkl
+
+# Secrets — never commit
+.env
+!.env.example
+
+# Test / coverage
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
