@@ -40,3 +40,25 @@ class TelemetryLog(Base):
         Index("ix_telemetry_log_status", "status"),
         Index("ix_telemetry_log_server_received_at", "server_received_at"),
     )
+
+
+class Alert(Base):
+    __tablename__ = "alerts"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    device_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    device_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    reading_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    batch_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    anomaly_score: Mapped[float | None] = mapped_column(Float, nullable=True)
+    alert_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    sensor_values: Mapped[str | None] = mapped_column(Text, nullable=True)
+    error_detail: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    detected_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+    __table_args__ = (
+        Index("ix_alerts_device_id", "device_id"),
+        Index("ix_alerts_batch_id", "batch_id"),
+        Index("ix_alerts_alert_type", "alert_type"),
+        Index("ix_alerts_detected_at", "detected_at"),
+    )

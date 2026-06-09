@@ -71,4 +71,5 @@ class TestAppendOnlyContract:
             n for n in dir(crud_module)
             if not n.startswith("_") and inspect.iscoroutinefunction(getattr(crud_module, n))
         ]
-        assert write_fns == ["create_telemetry_log"]
+        # create_alert was added for anomaly detection; both are INSERT-only
+        assert set(write_fns) == {"create_telemetry_log", "create_alert"}
