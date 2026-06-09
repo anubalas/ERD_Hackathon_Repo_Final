@@ -1,0 +1,37 @@
+STANDARD OPERATING PROCEDURE: PASTEURISER CRITICAL CONTROL POINTS
+Document: pasteurizer_sop.txt | Version: 1.0 | Effective: 2026-01-01
+Applicable Standard: FDA 21 CFR Part 110, Codex Alimentarius CAC/RCP 1-1969
+
+§1 Normal Operation
+The pasteuriser must achieve and maintain all three CCP parameters simultaneously:
+(a) Product temperature: minimum 72°C for a minimum hold time of 15 seconds (High Temperature
+Short Time — HTST pasteurisation). (b) Product pH: 6.5 to 7.0. (c) Flow rate: minimum 80 L/h.
+Any single parameter outside its CCP range constitutes a deviation requiring immediate action.
+
+§2 Temperature Below Minimum (Below 72°C)
+§2.1 Immediate Response
+Activate the divert valve to redirect product flow back to the feed tank. Do not allow
+sub-pasteurised product to pass forward in the process line. Acknowledge alert within 90
+seconds. Inspect heating plates for fouling and check steam supply pressure.
+
+§2.2 Product Disposition
+All product in the hold tube at the time of deviation is non-conforming. Segregate and
+quarantine as per HACCP general §3. Batch must not be released until root cause is identified,
+corrective action is verified, and three consecutive readings confirm temperature ≥ 72°C.
+
+§3 pH Deviation
+§3.1 Low pH (Below 6.5)
+Acidification of the product stream may indicate microbial contamination or ingredient
+ratio error. Place batch on immediate hold. Notify QA. Sample product for microbiological
+testing. Do not restart until pH is verified and root cause is resolved.
+
+§3.2 High pH (Above 7.0)
+Elevated pH may indicate alkaline contamination from cleaning chemicals. Check CIP rinse
+validation records. Product on hold. Conduct chemical residue test. Notify food safety manager.
+
+§4 Flow Rate Reduction (Below 80 L/h)
+§4.1 Reduced flow increases product hold time beyond the HTST design envelope, risking
+overprocessing and protein denaturation. Inspect pump and check for blockages in the flow
+control valve. Log flow rate readings for the preceding 5 minutes.
+§4.2 If flow rate cannot be restored above 80 L/h within 5 minutes, shut down the
+pasteuriser and place all in-process product on hold pending engineering inspection.

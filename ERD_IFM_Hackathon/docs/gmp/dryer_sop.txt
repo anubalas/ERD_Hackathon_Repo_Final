@@ -1,0 +1,39 @@
+STANDARD OPERATING PROCEDURE: SPRAY DRYER CRITICAL CONTROL POINTS
+Document: dryer_sop.txt | Version: 1.0 | Effective: 2026-01-01
+Applicable Standard: FDA 21 CFR Part 110, ISO 22000:2018
+
+§1 Normal Operation
+The spray dryer outlet temperature must be maintained between 100°C and 130°C to ensure
+microbial reduction targets are met while preventing protein degradation. Outlet humidity
+(relative humidity of the drying chamber exhaust) must not exceed 40% RH. Both parameters
+are monitored continuously. The inlet temperature setpoint is 185°C; outlet temperature is
+controlled by adjusting feed rate and inlet temperature in combination.
+
+§2 Temperature Deviation
+§2.1 Low Outlet Temperature (Below 100°C)
+Low outlet temperature indicates insufficient drying, leaving product with elevated moisture
+content that supports microbial growth. Immediate action: increase inlet temperature setpoint
+by 5°C increments and reduce feed rate by 10%. If outlet temperature cannot be restored
+within 10 minutes, stop feed and place all collected powder from the deviation window on
+hold. Product moisture content must be verified before release. Document per §5.
+
+§2.2 High Outlet Temperature (Above 130°C)
+Overheating causes Maillard browning, lysine degradation, and thermal damage to heat-labile
+nutrients. Reduce inlet temperature setpoint by 5°C increments and increase feed rate by
+5%. If temperature exceeds 140°C, halt production and investigate inlet temperature
+controller. Affected powder must be assessed for colour and nutrient content by QA.
+
+§3 Humidity Exceedance (Above 40% RH)
+§3.1 Elevated outlet humidity indicates incomplete moisture removal. This creates conditions
+for powder caking, microbial growth, and reduced shelf life. Check cyclone separator for
+blockage. Verify dehumidification system operation. Reduce feed rate by 15%.
+
+§3.2 If humidity remains above 45% RH for more than 5 minutes, stop production. Inspect
+drying chamber for wet-wall deposition. Powder collected during the exceedance period must
+be quarantined and tested for water activity (target: aw ≤ 0.25) before any release decision.
+
+§4 Product Hold Procedure
+§4.1 All powder collected during a CCP deviation window must be bagged separately, labelled
+with batch ID, deviation type, start and end time, and stored in the quarantine area.
+§4.2 Release of quarantined powder requires: (a) documented root cause, (b) corrective action
+record, (c) QA sign-off, (d) verification testing results (moisture, microbiology if required).

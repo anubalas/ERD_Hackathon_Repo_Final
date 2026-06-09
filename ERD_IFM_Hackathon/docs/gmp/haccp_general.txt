@@ -1,0 +1,63 @@
+STANDARD OPERATING PROCEDURE: GENERAL HACCP DEVIATION RESPONSE AND CORRECTIVE ACTION
+Document: haccp_general.txt | Version: 1.0 | Effective: 2026-01-01
+Applicable Standards: Codex Alimentarius CAC/RCP 1-1969 Rev. 4-2003 §5 (HACCP),
+FDA 21 CFR Part 110, ISO 22000:2018 §8.9
+
+§1 CCP Deviation Response
+Any deviation from a Critical Control Point (CCP) limit — whether at the boiler, pasteuriser,
+or dryer — must trigger a structured response within 2 minutes of alert acknowledgement.
+The response sequence is: (1) acknowledge alert, (2) identify affected product, (3) implement
+immediate corrective action, (4) place affected batch on hold, (5) notify supervisor and QA.
+No product that has passed through a CCP deviation window may be released without QA clearance.
+
+§2 Corrective Action Steps
+§2.1 Immediate Control Action
+Restore the CCP parameter to within its specified limit using the device-specific SOP
+(boiler_sop §2 or §3, pasteurizer_sop §2 through §4, dryer_sop §2 or §3). Document the
+time of deviation onset, the measured parameter value, and the action taken.
+
+§2.2 Product Segregation
+All product produced or in-process during the deviation window must be physically separated
+from conforming product and labelled as quarantined. The batch ID, deviation start time, and
+end time must be recorded on the quarantine tag and in the electronic audit log.
+
+§2.3 System Verification
+After corrective action, verify that the CCP parameter is stable within its acceptable range
+for a minimum of three consecutive monitoring intervals before resuming normal production.
+Record the verification readings with timestamps in the batch record.
+
+§2.4 Notification
+If the deviation duration exceeds 10 minutes or if product disposition is uncertain, notify
+the food safety manager and initiate a full HACCP investigation per §4.
+
+§3 Batch Hold and Segregation
+§3.1 A batch placed on hold must be stored under controlled conditions appropriate for the
+product (refrigerated if applicable) in a clearly designated hold area, physically separated
+from released product. Access to held product is restricted to QA personnel.
+
+§3.2 Disposition decisions (release, rework, or destroy) must be made within 24 hours of the
+hold being applied. The decision must be documented with the authorising QA officer's name
+and the technical justification. No held product may be released by production staff alone.
+
+§4 Root Cause Investigation
+§4.1 Trigger: Any CCP deviation lasting more than 5 minutes, or any deviation that results
+in product being placed on hold, must be subject to a formal root cause investigation.
+
+§4.2 Investigation Process
+The investigation must identify: (a) the equipment or process failure that caused the
+deviation, (b) whether the monitoring system detected the deviation promptly, (c) whether
+the corrective action was effective, and (d) whether a systemic change is required.
+
+§4.3 Corrective Action Closure
+Identified root causes must be addressed with documented corrective actions. Preventive
+measures must be implemented and their effectiveness verified at the next production run.
+Open investigations beyond 5 business days require escalation to the quality director.
+
+§5 Verification and Record Keeping
+§5.1 All CCP deviation records, corrective action reports, and product disposition decisions
+are part of the immutable HACCP audit trail. Records must be retained for a minimum of 5 years
+per FDA 21 CFR Part 110.93 and must be available for regulatory inspection within 60 minutes.
+
+§5.2 Monthly review of all CCP deviation records is mandatory. Trends indicating recurring
+deviations at a specific CCP must trigger a preventive action review and, if necessary,
+a revision of the relevant device SOP and HACCP plan.

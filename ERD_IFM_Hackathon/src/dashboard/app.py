@@ -11,7 +11,7 @@ from sqlalchemy import create_engine, func, text
 from sqlalchemy.orm import Session, sessionmaker
 from streamlit_autorefresh import st_autorefresh
 
-from src.db.models import TelemetryLog
+from src.db.models import AgentRun, Alert, TelemetryLog
 
 SQLITE_DB_PATH = os.getenv("SQLITE_DB_PATH", "telemetry.db")
 
@@ -130,7 +130,62 @@ def _colour_row(row: pd.Series) -> list[str]:
 # Tab layout
 # ---------------------------------------------------------------------------
 
-tab1, tab2, tab3 = st.tabs(["Live Feed", "CCP Alerts", "Batch Audit"])
+def get_ai_recommendations(session: Session) -> pd.DataFrame:
+    try:
+        rows = (
+            session.query(
+                AgentRun.id,
+                AgentRun.alert_id,
+                AgentRun.citation,
+                AgentRun.confidence_score,
+                AgentRun.requires_human_review,
+                AgentRun.model_name,
+                AgentRun.created_at,
+                AgentRun.recommendation,
+                Alert.device_id,
+                Alert.device_type,
+                Alert.anomaly_score,
+                Alert.batch_id,
+            )
+            .join(Alert, AgentRun.alert_id == Alert.id)
+            .order_by(AgentRun.created_at.desc())
+            .limit(20)
+            .all()
+        )
+    except Exception:
+        return pd.DataFrame()
+
+    if not rows:
+        return pd.DataFrame()
+
+    return pd.DataFrame([{
+        "created_at": r.created_at,
+        "device_id": r.device_id,
+        "device_type": r.device_type,
+        "batch_id": r.batch_id,
+        "anomaly_score": r.anomaly_score,
+        "citation": r.citation,
+        "confidence_score": r.confidence_score,
+        "requires_human_review": bool(r.requires_human_review),
+        "recommendation": (r.recommendation or "")[:200],
+        "model_name": r.model_name,
+    } for r in rows])
+
+
+def _ai_row_colour(row: pd.Series) -> list[str]:
+    conf = row.get("confidence_score", 0.0)
+    review = row.get("requires_human_review", False)
+    citation = row.get("citation", "")
+    if conf < 0.4 or not citation:
+        colour = "#ffcccc"
+    elif conf < 0.7 or review:
+        colour = "#ffe5b4"
+    else:
+        colour = "#ccffcc"
+    return [f"background-color: {colour}"] * len(row)
+
+
+tab1, tab2, tab3, tab4 = st.tabs(["Live Feed", "CCP Alerts", "Batch Audit", "🤖 AI Recommendations"])
 
 # --- Tab 1: Live Feed ---
 with tab1:
@@ -205,3 +260,51 @@ with tab3:
             )
     else:
         st.info("Enter a batch ID above to view its full audit trail.")
+
+# --- Tab 4: AI Recommendations ---
+with tab4:
+    try:
+        with SessionLocal() as session:
+            ai_df = get_ai_recommendations(session)
+    except sqlalchemy.exc.OperationalError as exc:
+        st.error(f"Could not connect to database. ({exc})")
+        st.stop()
+
+    if ai_df.empty:
+        st.info("No AI recommendations yet — waiting for the agent to process alerts.")
+    else:
+        for _, row in ai_df.iterrows():
+            conf = row["confidence_score"]
+            review = row["requires_human_review"]
+            citation = row["citation"]
+
+            if conf < 0.4 or not citation:
+                border_colour = "#cc0000"
+                bg_colour = "#ffcccc"
+            elif conf < 0.7 or review:
+                border_colour = "#cc7700"
+                bg_colour = "#fff3cc"
+            else:
+                border_colour = "#007700"
+                bg_colour = "#ccffcc"
+
+            review_badge = (
+                '<span style="background:#cc7700;color:white;padding:2px 8px;'
+                'border-radius:4px;font-size:0.8em;margin-left:8px;">⚠️ REQUIRES HUMAN REVIEW</span>'
+                if review else ""
+            )
+
+            st.markdown(
+                f'<div style="background:{bg_colour};border-left:4px solid {border_colour};'
+                f'padding:10px 14px;margin-bottom:8px;border-radius:4px;">'
+                f'<strong>{row["device_id"]}</strong> ({row["device_type"]}) &nbsp;|&nbsp; '
+                f'Batch: <code>{row["batch_id"]}</code> &nbsp;|&nbsp; '
+                f'Anomaly score: <code>{row["anomaly_score"]:.3f}</code>'
+                f'{review_badge}<br>'
+                f'<small>Citation: <em>{citation or "NO CITATION"}</em> &nbsp;|&nbsp; '
+                f'Confidence: <strong>{conf:.2f}</strong> &nbsp;|&nbsp; '
+                f'Model: {row["model_name"]} &nbsp;|&nbsp; {row["created_at"]}</small><br>'
+                f'<small>{row["recommendation"]}</small>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )

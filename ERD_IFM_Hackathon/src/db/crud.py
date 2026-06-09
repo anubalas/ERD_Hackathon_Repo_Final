@@ -1,8 +1,9 @@
 from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 
-from src.db.models import Alert, TelemetryLog
+from src.db.models import AgentRun, Alert, TelemetryLog
 
 
 async def create_telemetry_log(
@@ -75,3 +76,46 @@ async def create_alert(
     await session.commit()
     await session.refresh(alert)
     return alert
+
+
+# ---------------------------------------------------------------------------
+# Sync functions — used by the AI agent polling loop (not async FastAPI)
+# ---------------------------------------------------------------------------
+
+def create_agent_run(
+    session: Session,
+    *,
+    alert_id: int,
+    recommendation: str,
+    citation: str,
+    confidence_score: float,
+    requires_human_review: bool,
+    model_name: str,
+    raw_response: str,
+    created_at: datetime,
+) -> AgentRun:
+    run = AgentRun(
+        alert_id=alert_id,
+        recommendation=recommendation,
+        citation=citation,
+        confidence_score=confidence_score,
+        requires_human_review=requires_human_review,
+        model_name=model_name,
+        raw_response=raw_response,
+        created_at=created_at,
+    )
+    session.add(run)
+    session.commit()
+    session.refresh(run)
+    return run
+
+
+def get_unprocessed_alerts(session: Session) -> list[Alert]:
+    processed_ids = session.query(AgentRun.alert_id).scalar_subquery()
+    return (
+        session.query(Alert)
+        .filter(Alert.id.notin_(processed_ids))
+        .filter(Alert.alert_type == "ANOMALY")
+        .order_by(Alert.detected_at.asc())
+        .all()
+    )

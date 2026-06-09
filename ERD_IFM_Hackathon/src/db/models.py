@@ -62,3 +62,22 @@ class Alert(Base):
         Index("ix_alerts_alert_type", "alert_type"),
         Index("ix_alerts_detected_at", "detected_at"),
     )
+
+
+class AgentRun(Base):
+    __tablename__ = "agent_runs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    alert_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    recommendation: Mapped[str] = mapped_column(Text, nullable=False)
+    citation: Mapped[str] = mapped_column(String(512), nullable=False, default="")
+    confidence_score: Mapped[float] = mapped_column(Float, nullable=False)
+    requires_human_review: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    model_name: Mapped[str] = mapped_column(String(64), nullable=False)
+    raw_response: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+    __table_args__ = (
+        Index("ix_agent_runs_alert_id", "alert_id"),
+        Index("ix_agent_runs_created_at", "created_at"),
+    )

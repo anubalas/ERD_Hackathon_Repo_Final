@@ -1,0 +1,36 @@
+STANDARD OPERATING PROCEDURE: STEAM BOILER CRITICAL CONTROL POINTS
+Document: boiler_sop.txt | Version: 1.0 | Effective: 2026-01-01
+Applicable Standard: FDA 21 CFR Part 110, ISO 22000:2018
+
+§1 Normal Operation
+The steam boiler must maintain outlet temperature between 150°C and 170°C and operating
+pressure between 4.0 bar and 7.0 bar at all times during active production. Readings outside
+these ranges constitute a CCP deviation and must trigger immediate corrective action per §2
+or §3. Readings are logged every 30 seconds via the automated monitoring system.
+
+§2 Temperature Deviation Procedure
+§2.1 Immediate Actions (Temperature Outside 150–170°C Range)
+Upon detection of a temperature deviation, the operator must: (a) acknowledge the alert
+within 2 minutes; (b) inspect the burner control valve and thermostat sensor; (c) reduce
+steam demand by 20% if temperature exceeds 175°C; (d) increase fuel supply if temperature
+drops below 145°C. All readings during the deviation window must be flagged for batch review.
+
+§2.2 Investigation and Documentation
+If the temperature remains outside the CCP range for more than 5 minutes, the batch must be
+placed on hold per §4. The operator must document: time of deviation, measured temperature,
+corrective action taken, and recovery time. A root cause investigation must be completed
+within 24 hours per HACCP general procedure §4.
+
+§3 Pressure Deviation Procedure
+§3.1 Overpressure (Above 7.0 bar)
+Activate pressure relief valve immediately. Reduce fuel input by 30%. If pressure exceeds
+8.5 bar, initiate emergency shutdown per §4. Log event with timestamp and peak pressure.
+
+§3.2 Low Pressure (Below 4.0 bar)
+Inspect feed water pump and check for steam leaks. Increase fuel supply incrementally.
+If pressure cannot be restored within 10 minutes, place batch on hold and notify supervisor.
+
+§4 Emergency Shutdown
+Trigger emergency shutdown when: (a) temperature exceeds 185°C, (b) pressure exceeds 9.0 bar,
+(c) water level sensor fails. After shutdown, batch is automatically quarantined. No product
+from the affected batch may be released without QA sign-off and corrective action report.
