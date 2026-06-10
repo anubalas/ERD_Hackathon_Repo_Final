@@ -330,6 +330,7 @@ def _handle_signal(signum, frame):
 
 def polling_loop(session, graph, interval: int) -> None:
     while not _stop:
+        print(f"STARTED POLLING")
         unprocessed = get_unprocessed_alerts(session)
         if not unprocessed:
             logger.debug("No new alerts.")
@@ -401,6 +402,7 @@ def main() -> None:
     signal.signal(signal.SIGINT, _handle_signal)
     signal.signal(signal.SIGTERM, _handle_signal)
 
+    print(f"GRAPH CREATED!!!!")
     logger.info("[AGENT] Polling every %ss ...", args.poll_interval)
     try:
         polling_loop(session, graph, args.poll_interval)
