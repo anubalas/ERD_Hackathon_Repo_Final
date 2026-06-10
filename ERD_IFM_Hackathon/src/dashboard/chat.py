@@ -1,12 +1,12 @@
-"""IFM GMP Chat Assistant page.
+"""IFM GMP Chat Assistant page (LangChain + OpenAI version)."""
 
-Rendered by app.py when st.session_state.page == "chat".
-Supports alert-context auto-messages and free-form operator queries.
-"""
 import json
 import logging
 import os
 import sys
+from dotenv import load_dotenv
+
+load_dotenv()
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
@@ -15,13 +15,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from src.db.crud import acknowledge_alert
-from src.agent.tools import CLAUDE_TOOLS, execute_tool
+from src.agent.tools import execute_tool
 
 logger = logging.getLogger(__name__)
 
 SQLITE_DB_PATH = os.getenv("SQLITE_DB_PATH", "telemetry.db")
 CHROMA_PERSIST_DIR = os.getenv("CHROMA_PERSIST_DIR", "./chroma_db")
-MODEL_NAME = "claude-sonnet-4-6"
+
+MODEL_NAME = "gpt-4o-mini"
 
 _engine = create_engine(
     f"sqlite:///{SQLITE_DB_PATH}",
@@ -39,21 +40,21 @@ You help operators understand alerts, find SOP procedures, and analyse batch saf
 Infant food safety is the highest priority — be precise, cite sources, and never speculate.
 
 You have access to three tools:
-- query_alerts_db   : search the live alerts database (anomaly, CCP breach, trend data)
-- search_gmp_docs   : search SOP/GMP documents for procedures and regulatory guidance
-- generate_report   : produce a visual chart (bar, pie, or line) of alert trends
+- query_alerts_db
+- search_gmp_docs
+- generate_report
 
 Guidelines:
-1. When asked about specific alerts or history → use query_alerts_db first.
-2. When asked about procedures, what to do, or SOP → use search_gmp_docs.
-3. When asked for a summary, visual, or trend → use generate_report.
-4. Always cite SOP source and section when giving remediation advice.
-5. Flag when human QA review is required.
-6. Keep answers concise and action-oriented.
+1. Alerts/history → query_alerts_db
+2. SOP/procedures → search_gmp_docs
+3. Trends/charts → generate_report
+4. Always cite SOP sections
+5. Flag when QA review is required
+6. Keep answers concise and actionable
 """
 
 # ---------------------------------------------------------------------------
-# ChromaDB collection (cached per session)
+# ChromaDB
 # ---------------------------------------------------------------------------
 
 def _get_collection():
@@ -67,93 +68,130 @@ def _get_collection():
     return st.session_state.chroma_collection
 
 # ---------------------------------------------------------------------------
-# Agentic loop
+# LangChain Agent
 # ---------------------------------------------------------------------------
 
 def _run_agent(history: list) -> tuple[str, object]:
-    """Call Claude with tool use. Returns (response_text, chart_or_None)."""
-    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    from openai import OpenAI
+
+    api_key = os.getenv("OPENAI_API_KEY", "")
     if not api_key:
-        return (
-            "⚠️ **ANTHROPIC_API_KEY not configured.**\n\n"
-            "Please set it in your `.env` file or run:\n"
-            "```\n$env:ANTHROPIC_API_KEY='sk-ant-...'\n```",
-            None,
-        )
+        return "⚠️ OPENAI_API_KEY not configured.", None
 
-    try:
-        import anthropic
-    except ImportError:
-        return "⚠️ `anthropic` package not installed — run `pip install anthropic`.", None
+    client = OpenAI(api_key=api_key, base_url=os.getenv("OPENAI_BASE_URL", "https://openai.generative.engine.capgemini.com/v1"))
 
-    # Build message list from history (skip chart metadata)
-    messages = [
-        {"role": m["role"], "content": m["content"]}
-        for m in history
-        if m["role"] in ("user", "assistant")
-    ]
-
-    client = anthropic.Anthropic(api_key=api_key)
     collection = _get_collection()
     pending_chart = None
+
+    # ---- Define tools (OpenAI format) ----
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "query_alerts_db",
+                "description": "Search alerts database",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string"}
+                    },
+                    "required": ["query"],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "search_gmp_docs",
+                "description": "Search SOP/GMP documents",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string"}
+                    },
+                    "required": ["query"],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "generate_report",
+                "description": "Generate charts",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string"}
+                    },
+                    "required": ["query"],
+                },
+            },
+        },
+    ]
+
+    # ---- Convert history ----
+    messages = [{"role": "system", "content": CHAT_SYSTEM_PROMPT}]
+    for msg in history:
+        if msg["role"] in ["user", "assistant"]:
+            messages.append({
+                "role": msg["role"],
+                "content": msg["content"]
+            })
+
     max_loops = 5
 
     for _ in range(max_loops):
         try:
-            response = client.messages.create(
-                model=MODEL_NAME,
-                max_tokens=2048,
-                system=CHAT_SYSTEM_PROMPT,
-                tools=CLAUDE_TOOLS,
+            response = client.chat.completions.create(
+                model="openai.gpt-5.2",
                 messages=messages,
+                tools=tools,
+                tool_choice="auto"
             )
-        except Exception as exc:
-            return f"❌ Agent error: {exc}", None
+        except Exception as e:
+            return f"❌ Agent error: {e}", None
 
-        if response.stop_reason == "end_turn":
-            text = "".join(
-                block.text for block in response.content if hasattr(block, "text")
-            )
-            return text, pending_chart
+        msg = response.choices[0].message
 
-        if response.stop_reason == "tool_use":
-            # Add assistant message with tool calls
-            messages.append({"role": "assistant", "content": response.content})
+        # ---- If model wants to call tools ----
+        if msg.tool_calls:
+            messages.append(msg)
 
-            # Execute each tool and collect results
-            tool_results = []
-            with _SessionLocal() as session:
-                for block in response.content:
-                    if getattr(block, "type", None) == "tool_use":
-                        result_text, chart = execute_tool(
-                            block.name, block.input, session, collection
-                        )
-                        if chart is not None:
-                            pending_chart = chart
-                        tool_results.append({
-                            "type": "tool_result",
-                            "tool_use_id": block.id,
-                            "content": str(result_text),
-                        })
+            for tool_call in msg.tool_calls:
+                name = tool_call.function.name
+                args = json.loads(tool_call.function.arguments)
 
-            messages.append({"role": "user", "content": tool_results})
+                with _SessionLocal() as session:
+                    result, chart = execute_tool(
+                        name, args, session, collection
+                    )
+
+                if chart is not None:
+                    pending_chart = chart
+
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "content": str(result),
+                })
+
         else:
-            break
+            # Final response
+            return msg.content, pending_chart
 
-    return "Agent reached maximum reasoning steps.", pending_chart
-
+    return "Agent reached max steps.", pending_chart
+    
 # ---------------------------------------------------------------------------
 # Message processing
 # ---------------------------------------------------------------------------
 
 def _process_message(user_text: str) -> None:
-    """Add user message, call agent, add response — all in one call."""
     if not user_text.strip():
         return
 
     st.session_state.chat_history.append({"role": "user", "content": user_text})
 
-    with st.spinner("Claude is thinking..."):
+    with st.spinner("AI is thinking..."):
         response_text, chart = _run_agent(st.session_state.chat_history)
 
     st.session_state.chat_history.append({
@@ -163,11 +201,10 @@ def _process_message(user_text: str) -> None:
     })
 
 # ---------------------------------------------------------------------------
-# Main render function (called from app.py)
+# UI
 # ---------------------------------------------------------------------------
 
 def render_chat_page() -> None:
-    # ── Session state defaults ──────────────────────────────────────────────
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
     if "alert_context" not in st.session_state:
@@ -175,14 +212,16 @@ def render_chat_page() -> None:
     if "pending_auto_message" not in st.session_state:
         st.session_state.pending_auto_message = None
 
-    # ── Sidebar ─────────────────────────────────────────────────────────────
+    # Sidebar
     with st.sidebar:
         st.markdown("### Navigation")
+
         if st.button("📊 Dashboard", use_container_width=True):
             st.session_state.page = "dashboard"
             st.rerun()
 
         st.markdown("---")
+
         if st.button("🔄 New Chat", use_container_width=True):
             st.session_state.chat_history = []
             st.session_state.alert_context = None
@@ -192,71 +231,63 @@ def render_chat_page() -> None:
         st.markdown("---")
         st.caption("IFM GMP Assistant")
         st.caption(f"Model: {MODEL_NAME}")
-        api_key = os.getenv("ANTHROPIC_API_KEY", "")
-        if api_key:
+
+        if os.getenv("OPENAI_API_KEY"):
             st.success("API key ✓", icon="🔑")
         else:
             st.error("API key missing", icon="⚠️")
 
-    # ── Page header ─────────────────────────────────────────────────────────
+    # Header
     st.title("🤖 IFM GMP Assistant")
-    st.caption("Powered by Claude · Ask about alerts, SOPs, or batch safety")
+    st.caption("Powered by OpenAI + LangChain")
 
-    # ── Alert context banner ─────────────────────────────────────────────────
+    # Alert banner
     ctx = st.session_state.alert_context
     if ctx:
         col_info, col_ack = st.columns([5, 1])
+
         with col_info:
             st.warning(
-                f"**Active Alert** — {ctx.get('device_id', '?')} "
-                f"({ctx.get('alert_type', '?')}) · Batch: {ctx.get('batch_id', '?')}",
+                f"**Active Alert** — {ctx.get('device_id')} "
+                f"({ctx.get('alert_type')}) · Batch: {ctx.get('batch_id')}",
                 icon="🔴",
             )
+
         with col_ack:
-            if st.button("✅ Acknowledge", key="ack_chat"):
+            if st.button("✅ Acknowledge"):
                 alert_id = ctx.get("alert_id")
                 if alert_id:
                     try:
                         with _SessionLocal() as session:
                             acknowledge_alert(session, alert_id)
                         st.success("Alert acknowledged!")
-                    except Exception as exc:
-                        st.error(f"Could not acknowledge: {exc}")
+                    except Exception as e:
+                        st.error(str(e))
+
                 st.session_state.alert_context = None
                 st.rerun()
+
         st.markdown("---")
 
-    # ── Auto-send pending alert message ─────────────────────────────────────
-    if st.session_state.pending_auto_message and not st.session_state.chat_history:
-        auto_msg = st.session_state.pending_auto_message
-        st.session_state.pending_auto_message = None
-        _process_message(auto_msg)
-
-    # ── Welcome message if empty ─────────────────────────────────────────────
+    # Welcome
     if not st.session_state.chat_history:
-        with st.chat_message("assistant", avatar="🤖"):
+        with st.chat_message("assistant"):
             st.markdown(
                 "Hello! I'm your **GMP Compliance Assistant**.\n\n"
-                "I can help you with:\n"
-                "- 🚨 **Alert analysis** — *'What alerts happened in the last 24 hours?'*\n"
-                "- 📋 **SOP procedures** — *'What's the boiler shutdown procedure?'*\n"
-                "- 📊 **Visual reports** — *'Show me a chart of alerts by device'*\n"
-                "- 🔍 **Batch safety** — *'Is BATCH-001 safe to continue?'*"
+                "- 🚨 Alert analysis\n"
+                "- 📋 SOP procedures\n"
+                "- 📊 Reports\n"
+                "- 🔍 Batch safety"
             )
 
-    # ── Chat history ─────────────────────────────────────────────────────────
+    # Chat history
     for i, msg in enumerate(st.session_state.chat_history):
-        avatar = "🤖" if msg["role"] == "assistant" else "👤"
-        with st.chat_message(msg["role"], avatar=avatar):
+        with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
             if msg.get("chart") is not None:
-                st.plotly_chart(
-                    msg["chart"],
-                    use_container_width=True,
-                    key=f"chart_{i}",
-                )
+                st.plotly_chart(msg["chart"], use_container_width=True)
 
-    # ── Chat input ────────────────────────────────────────────────────────────
+    # Input
     user_input = st.chat_input("Type your message...")
     if user_input:
         _process_message(user_input)

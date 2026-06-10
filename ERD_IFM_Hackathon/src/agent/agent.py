@@ -330,6 +330,7 @@ def _handle_signal(signum, frame):
 
 def polling_loop(session, graph, interval: int) -> None:
     while not _stop:
+        print(f"STARTED POLLING")
         unprocessed = get_unprocessed_alerts(session)
         if not unprocessed:
             logger.debug("No new alerts.")
@@ -389,7 +390,7 @@ def main() -> None:
         model=MODEL_NAME,
         max_tokens=1024,
         base_url=os.getenv("OPENAI_BASE_URL", "https://openai.generative.engine.capgemini.com/v1"),
-        api_key=os.getenv("OPENAI_API_KEY", ""),
+        api_key=os.getenv("OPENAI_API_KEY", "miMBG1ldXy8w4WWuqB4MZ6vhdke1oBcG7lMfTnt6"),
     )
     graph = build_graph(collection, llm, session)
 
@@ -401,6 +402,7 @@ def main() -> None:
     signal.signal(signal.SIGINT, _handle_signal)
     signal.signal(signal.SIGTERM, _handle_signal)
 
+    print(f"GRAPH CREATED!!!!")
     logger.info("[AGENT] Polling every %ss ...", args.poll_interval)
     try:
         polling_loop(session, graph, args.poll_interval)
