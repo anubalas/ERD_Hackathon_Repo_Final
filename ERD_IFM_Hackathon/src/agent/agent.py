@@ -390,7 +390,7 @@ def main() -> None:
         model=MODEL_NAME,
         max_tokens=1024,
         base_url=os.getenv("OPENAI_BASE_URL", "https://openai.generative.engine.capgemini.com/v1"),
-        api_key=os.getenv("OPENAI_API_KEY", "miMBG1ldXy8w4WWuqB4MZ6vhdke1oBcG7lMfTnt6"),
+        api_key=os.getenv("OPENAI_API_KEY", ""),
     )
     graph = build_graph(collection, llm, session)
 
