@@ -21,7 +21,7 @@ import redis.asyncio as aioredis
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from src.db.crud import create_alert
-from src.db.database import AsyncSessionLocal, init_db
+from src.db.database import AsyncSessionLocal, init_db, migrate_db
 from src.detection.anomaly import AnomalyScorer
 
 logger = logging.getLogger(__name__)
@@ -34,6 +34,13 @@ GREEN = "\033[92m"
 RED = "\033[91m"
 YELLOW = "\033[93m"
 RESET = "\033[0m"
+
+# Rolling window per device type — plain Python, no extra libraries
+_rolling_windows: dict[str, list[float]] = {
+    "boiler": [],
+    "pasteurizer": [],
+    "dryer": [],
+}
 
 
 async def process_message(
@@ -95,6 +102,38 @@ async def process_message(
                                        ["temperature", "pressure", "humidity", "ph", "flow_rate"]}),
         )
         logger.info("[%s] Alert written — %s/%s score=%+.4f", ts, device_type, device_id, raw_score)
+
+    # -----------------------------------------------------------------------
+    # Rolling window trend detection (runs alongside IsolationForest)
+    # -----------------------------------------------------------------------
+    temperature = payload.get("temperature")
+    if temperature is not None and device_type in _rolling_windows:
+        window = _rolling_windows[device_type]
+        window.append(float(temperature))
+        # Keep only last 10 readings
+        if len(window) > 10:
+            _rolling_windows[device_type] = window[-10:]
+            window = _rolling_windows[device_type]
+        if len(window) == 10:
+            first_avg = sum(window[:5]) / 5
+            last_avg  = sum(window[5:]) / 5
+            if last_avg > first_avg * 1.05:
+                print(
+                    f"[{ts}] [{device_type:<12}] {YELLOW}TREND_ANOMALY{RESET}"
+                    f" temp rising: {first_avg:.1f} → {last_avg:.1f}"
+                )
+                await create_alert(
+                    session,
+                    device_id=device_id,
+                    device_type=device_type,
+                    batch_id=batch_id,
+                    alert_type="TREND_ANOMALY",
+                    severity="WARNING",
+                    detected_at=datetime.now(timezone.utc),
+                    reading_id=reading_id,
+                    error_detail="Gradual temperature rise detected over last 10 readings",
+                    sensor_values=json.dumps({"temperature": temperature}),
+                )
 
 
 async def _write_pipeline_error(session, ts: str, payload: dict, error: str, raw: str) -> None:
@@ -187,6 +226,7 @@ async def main() -> None:
     print(f"{GREEN}[SUBSCRIBER] Models loaded: {', '.join(device_names)}{RESET}")
 
     await init_db()
+    await migrate_db()
 
     stop_event = asyncio.Event()
 

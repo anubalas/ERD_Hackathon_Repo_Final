@@ -52,9 +52,13 @@ class Alert(Base):
     batch_id: Mapped[str] = mapped_column(String(64), nullable=False)
     anomaly_score: Mapped[float | None] = mapped_column(Float, nullable=True)
     alert_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    severity: Mapped[str | None] = mapped_column(String(32), nullable=True)
     sensor_values: Mapped[str | None] = mapped_column(Text, nullable=True)
     error_detail: Mapped[str | None] = mapped_column(String(512), nullable=True)
     detected_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    dismissed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="0")
+    acknowledged: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="0")
+    acknowledged_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     __table_args__ = (
         Index("ix_alerts_device_id", "device_id"),
