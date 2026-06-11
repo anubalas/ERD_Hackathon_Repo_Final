@@ -1,0 +1,112 @@
+Pasteurizer Operations SOP
+Infant Food Manufacturing Plant – IoT Monitoring Simulation
+Equipment: Continuous HTST Pasteurizer System
+Machine Type: pasteurizer
+Monitoring Frequency: Every 5 seconds via IoT telemetry
+1. Purpose
+This SOP defines the operational response procedures for abnormal pasteurizer conditions detected through the IoT monitoring system.
+2. Process Overview
+The pasteurizer thermally processes liquid infant food mixtures to ensure microbial safety and regulatory compliance before downstream processing.
+3. Critical Importance in Infant Food Manufacturing
+Improper pasteurization may lead to microbial contamination, product recalls, nutritional degradation, and regulatory non-compliance.
+4. IoT Parameters Monitored
+Temperature: 68°C – 82°C | Abnormal: < 65°C or > 85°C
+Flow Rate: 150 – 450 L/hr | Abnormal: > 500 L/hr
+Holding Time: 15 – 25 sec | Abnormal: < 10 sec
+5. Parameter Definitions
+Temperature ensures microbial destruction.
+Flow Rate affects residence time.
+Holding Time ensures validated pathogen reduction.
+6. Alarm Severity Levels
+Advisory → Drifting parameter
+Warning → Near threshold
+Critical → Threshold exceeded
+Emergency → Food safety risk
+7. SOP – Low Temperature
+Condition: Temperature < 65°C
+
+Immediate Actions:
+- Acknowledge alarm
+- Divert product to rework tank
+- Verify temperature readings
+- Check steam/heating system
+- Reduce product flow
+
+Emergency Shutdown if temperature falls below 55°C.
+8. SOP – High Temperature
+Condition: Temperature > 85°C
+
+Immediate Actions:
+- Reduce heating input
+- Verify sensors
+- Inspect flow stability
+- Notify QA
+
+Shutdown if temperature exceeds 95°C.
+9. SOP – Low Holding Time
+Condition: Holding Time < 10 sec
+
+Immediate Actions:
+- Divert product immediately
+- Reduce flow rate
+- Verify holding tube integrity
+- Check controller settings
+
+Shutdown if holding time drops below 5 sec.
+10. SOP – High Flow Rate
+Condition: Flow Rate > 500 L/hr
+
+Immediate Actions:
+- Reduce pump speed
+- Verify flow meter
+- Inspect control loop
+
+Shutdown if flow exceeds 650 L/hr.
+11. Product Diversion Procedure
+Whenever CCP conditions are violated, divert product, place batch on HOLD, notify QA, and document the deviation.
+12. Controlled Shutdown Procedure
+1. Stop product feed gradually
+2. Divert remaining product
+3. Reduce steam supply
+4. Flush system
+5. Stop pumps
+6. Record shutdown reason
+13. QA & Regulatory Requirements
+All CCP deviations require QA review, batch traceability, corrective action documentation, and supervisor approval.
+14. Maintenance Inspection Checklist
+Inspect sensors, steam valves, heat exchangers, flow meters, holding tubes, diversion valves, and PLC logic.
+15. Operator Logging Requirements
+Operators must record alarm type, timestamp, sensor values, batch number, corrective actions, and QA notifications.
+16. Escalation Matrix
+Warning Alarm → Shift Operator
+CCP Deviation → QA Department
+Repeated Alarm → Maintenance Team
+Emergency Shutdown → Plant Manager + Safety Team
+17. Example IoT Alert Payloads
+{
+  "deviceId": "pasteurizer-01",
+  "alert": true,
+  "temperature": 58.4
+}
+
+{
+  "deviceId": "pasteurizer-01",
+  "alert": true,
+  "temperature": 92.7
+}
+
+{
+  "deviceId": "pasteurizer-01",
+  "alert": true,
+  "holdingTime": 7.2
+}
+
+{
+  "deviceId": "pasteurizer-01",
+  "alert": true,
+  "flowRate": 612.5
+}
+18. Recommended Dashboard Features
+Real-time graphs, CCP indicators, alarm banners, SOP guidance, QA hold simulation, batch traceability, and deviation reports.
+19. Simulation Notes
+Abnormal events occur every 3–10 minutes with automatic alert triggering based on threshold conditions.

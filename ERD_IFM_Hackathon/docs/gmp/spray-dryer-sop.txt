@@ -1,0 +1,109 @@
+Spray Dryer Operations SOP
+Infant Food Manufacturing Plant – IoT Monitoring Simulation
+Equipment: Industrial Spray Dryer System
+Machine Type: spray_dryer
+Monitoring Frequency: Every 5 seconds via IoT telemetry
+1. Purpose
+This SOP defines operational response procedures for abnormal spray dryer conditions detected through the IoT monitoring system.
+2. Process Overview
+The spray dryer converts concentrated liquid infant food slurry into dry powder using heated air and atomization technology.
+3. Importance in Infant Food Manufacturing
+Improper spray drying may lead to excess moisture, nutrient degradation, powder lumping, microbial risks, and fire hazards.
+4. IoT Parameters Monitored
+Inlet Temperature: 160°C – 195°C | Abnormal: > 200°C
+Outlet Temperature: 85°C – 110°C | Abnormal: < 80°C or > 120°C
+Humidity: 6% – 14% | Abnormal: > 15%
+5. Parameter Definitions
+Inlet Temperature controls drying energy.
+Outlet Temperature indicates drying efficiency.
+Humidity indicates final powder moisture conditions.
+6. Alarm Severity Levels
+Advisory → Trending abnormal
+Warning → Near threshold
+Critical → Threshold exceeded
+Emergency → Unsafe condition
+7. SOP – High Inlet Temperature
+Condition: Inlet Temperature > 200°C
+
+Immediate Actions:
+- Reduce burner firing rate
+- Inspect airflow system
+- Verify temperature sensors
+- Check product feed stability
+
+Emergency shutdown if temperature exceeds 230°C.
+8. SOP – High Humidity
+Condition: Humidity > 15%
+
+Immediate Actions:
+- Verify heating performance
+- Reduce slurry feed rate
+- Inspect atomizer and exhaust airflow
+
+Shutdown if humidity exceeds 25%.
+9. SOP – High Outlet Temperature
+Condition: Outlet Temperature > 120°C
+
+Immediate Actions:
+- Reduce inlet heat
+- Increase feed rate slightly
+- Verify airflow stability
+
+Shutdown if outlet temperature exceeds 140°C.
+10. SOP – Low Outlet Temperature
+Condition: Outlet Temperature < 80°C
+
+Immediate Actions:
+- Increase drying temperature
+- Reduce feed rate
+- Inspect atomizer and exhaust system
+
+Shutdown if outlet temperature falls below 60°C.
+11. Powder Quality Protection Procedure
+Hold affected powder lots, notify QA, perform moisture analysis, and inspect powder appearance before release.
+12. Fire & Explosion Safety Procedure
+If smoke or fire is detected, stop product feed, shut down burner, activate fire suppression system, and evacuate non-essential personnel.
+13. Controlled Shutdown Procedure
+1. Stop slurry feed gradually
+2. Maintain airflow during cooldown
+3. Reduce burner firing slowly
+4. Allow chamber cooling
+5. Clean powder collection system
+14. Maintenance Inspection Checklist
+Inspect burners, thermocouples, atomizers, blowers, cyclone separators, humidity sensors, and fire suppression systems.
+15. Operator Logging Requirements
+Operators must record alarm type, timestamp, sensor values, batch number, corrective actions, QA notifications, and shutdown actions.
+16. Escalation Matrix
+Warning Alarm → Shift Operator
+Critical Alarm → Shift Supervisor
+Powder Quality Risk → QA Department
+Fire/Explosion Risk → Safety Team + Plant Manager
+17. Example IoT Alert Payloads
+{
+  "deviceId": "spray-dryer-01",
+  "alert": true,
+  "inletTemperature": 221.4
+}
+
+{
+  "deviceId": "spray-dryer-01",
+  "alert": true,
+  "humidity": 24.7
+}
+
+{
+  "deviceId": "spray-dryer-01",
+  "alert": true,
+  "outletTemperature": 134.5
+}
+
+{
+  "deviceId": "spray-dryer-01",
+  "alert": true,
+  "outletTemperature": 68.2
+}
+18. Recommended Dashboard Features
+Real-time thermal graphs, humidity monitoring, alarm acknowledgment, SOP guidance, QA workflows, maintenance tickets, and fire safety alerts.
+19. Simulation Notes
+Abnormal conditions occur randomly every 3–10 minutes with automatic alert generation based on defined threshold limits.
+

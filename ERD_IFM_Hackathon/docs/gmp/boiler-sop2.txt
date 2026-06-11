@@ -1,0 +1,93 @@
+Boiler Operations SOP
+Infant Food Manufacturing Plant – IoT Monitoring Simulation
+Equipment: Steam Boiler System
+Machine Type: boiler
+Monitoring Frequency: Every 5 seconds via IoT telemetry
+1. Purpose
+This SOP defines the actions operators must take when the boiler IoT monitoring system detects abnormal operating conditions beyond acceptable safety thresholds.
+
+The SOP is intended for Boiler Operators, Shift Supervisors, Maintenance Teams, and Process Engineers.
+2. Process Importance
+The boiler provides steam required for ingredient sterilization, spray drying systems, CIP operations, heating, and pasteurization.
+
+Abnormal boiler conditions can result in product contamination risk, steam supply interruption, equipment damage, operator safety hazards, and production downtime.
+3. IoT Parameters Monitored
+Steam Temperature: 180°C – 250°C | Abnormal: > 280°C
+Pressure: 8 – 18 bar | Abnormal: > 20 bar
+Water Level: 55% – 85% | Abnormal: < 50%
+Fuel Flow Rate: 80 – 160 L/hr
+4. Alarm Severity Levels
+Warning: Parameter approaching limit
+Critical: Threshold exceeded
+Emergency: Persistent abnormality > 2 minutes
+5. SOP for High Steam Temperature
+Condition: Steam Temperature > 280°C
+
+Immediate Actions:
+- Acknowledge alarm on monitoring dashboard
+- Reduce burner firing rate by 10–20%
+- Verify steam outlet valves are open
+- Check burner chamber behavior
+- Confirm temperature sensor operation
+
+Emergency Condition:
+If temperature exceeds 320°C, initiate controlled shutdown.
+6. SOP for High Boiler Pressure
+Condition: Pressure > 20 bar
+
+Immediate Actions:
+- Reduce burner load
+- Verify pressure relief valve operation
+- Inspect steam lines for blockage
+
+Emergency Condition:
+If pressure exceeds 25 bar, perform emergency shutdown and evacuate non-essential personnel.
+7. SOP for Low Water Level
+Condition: Water Level < 50%
+
+Immediate Actions:
+- Verify feed water pump operation
+- Check inlet valve status
+- Inspect for leaks
+
+Emergency Condition:
+If water level drops below 30%, stop burner operation immediately.
+8. Boiler Shutdown Procedure
+1. Reduce burner load gradually
+2. Stop fuel supply
+3. Maintain water circulation
+4. Vent excess steam safely
+5. Log shutdown reason
+9. Notification & Escalation Matrix
+Warning Alarm → Shift Operator
+Critical Alarm → Shift Supervisor
+Emergency Shutdown → Plant Manager + Safety Team
+Repeated Alarms → Maintenance Engineering
+10. Operator Logging Requirements
+Operators must record timestamp of alarm, sensor value, corrective actions taken, duration of abnormal condition, and maintenance ticket number.
+11. Example IoT Alert Messages
+{
+  "deviceId": "boiler-01",
+  "alert": true,
+  "steamTemperature": 301.5
+}
+
+{
+  "deviceId": "boiler-01",
+  "alert": true,
+  "pressure": 24.2
+}
+
+{
+  "deviceId": "boiler-01",
+  "alert": true,
+  "waterLevel": 34.8
+}
+12. Recommended Dashboard Status Logic
+Healthy → All parameters within range
+Warning → Near threshold
+Critical → Threshold exceeded
+Shutdown Required → Severe abnormality
+13. Simulation Notes
+Abnormal conditions occur randomly every 3–10 minutes.
+The monitoring dashboard should display alerts, SOP guidance, maintenance ticket creation, and shutdown simulation workflows.

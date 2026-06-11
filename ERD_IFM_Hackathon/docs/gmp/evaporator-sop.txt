@@ -1,0 +1,96 @@
+Evaporator Operations SOP
+Infant Food Manufacturing Plant – IoT Monitoring Simulation
+Equipment: Multi-Effect Evaporator System
+Machine Type: evaporator
+Monitoring Frequency: Every 5 seconds via IoT telemetry
+1. Purpose
+This SOP defines operational response procedures for abnormal evaporator conditions detected through the IoT monitoring system.
+2. Process Overview
+The evaporator removes excess water from liquid food slurry before spray drying and helps achieve the required solids concentration while preserving nutritional quality.
+3. Critical Role in Infant Food Manufacturing
+Improper evaporator operation may lead to burnt product, nutrient degradation, fouling, energy loss, batch rejection, and production downtime.
+4. IoT Parameters Monitored
+Steam Temperature: 85°C – 105°C | Abnormal: > 110°C
+Pressure: 1.8 – 2.8 bar | Abnormal: > 3.0 bar
+Liquid Level: 40% – 85% | Abnormal: < 30%
+5. Sensor Definitions
+Steam Temperature controls evaporation rate and protects nutrients.
+Pressure maintains stable boiling conditions.
+Liquid Level prevents dry heating and tube damage.
+6. Alarm Severity Classification
+Advisory → Trending toward limit
+Warning → Near threshold
+Critical → Threshold exceeded
+Emergency → Shutdown required
+7. SOP – High Steam Temperature
+Condition: Steam Temperature > 110°C
+
+Immediate Actions:
+- Acknowledge alarm
+- Verify sensor reading
+- Reduce steam input
+- Check feed flow
+- Inspect condensate removal
+
+Emergency Shutdown if temperature exceeds 125°C.
+8. SOP – High Pressure
+Condition: Pressure > 3.0 bar
+
+Immediate Actions:
+- Reduce steam supply
+- Inspect vapor outlet
+- Verify vacuum system
+- Check safety relief devices
+
+Emergency Shutdown if pressure exceeds 4.0 bar.
+9. SOP – Low Liquid Level
+Condition: Liquid Level < 30%
+
+Immediate Actions:
+- Verify feed system
+- Reduce steam heating
+- Inspect for leaks
+- Confirm sensor validity
+
+Emergency Shutdown if level drops below 15%.
+10. Controlled Shutdown Procedure
+1. Stop product feed gradually
+2. Reduce steam supply slowly
+3. Normalize pressure
+4. Drain product safely
+5. Flush evaporator
+6. Isolate steam supply
+11. Product Quality Protection Procedure
+If abnormal conditions persist, place affected batch on HOLD and notify QA department.
+12. Maintenance Inspection Checklist
+Inspect steam valves, sensors, feed pumps, vacuum system, condensers, relief valves, and tube fouling condition.
+13. Operator Logging Requirements
+Operators must document alarm type, timestamp, readings, corrective actions, escalation details, and shutdown actions.
+14. Escalation Matrix
+Warning Alarm → Shift Operator
+Critical Alarm → Shift Supervisor
+Repeated Alarm → Maintenance Team
+Quality Risk → QA Department
+Emergency Shutdown → Plant Manager + Safety Team
+15. Example IoT Alert Payloads
+{
+  "deviceId": "evaporator-01",
+  "alert": true,
+  "steamTemperature": 121.4
+}
+
+{
+  "deviceId": "evaporator-01",
+  "alert": true,
+  "pressure": 3.8
+}
+
+{
+  "deviceId": "evaporator-01",
+  "alert": true,
+  "liquidLevel": 18.5
+}
+16. Recommended Dashboard Features
+Real-time charts, alarm banners, SOP guidance popups, maintenance ticket creation, QA hold simulation, and historical trends.
+17. Simulation Notes
+Abnormal events occur every 3–10 minutes. The simulation demonstrates realistic industrial monitoring workflows.
