@@ -12,7 +12,7 @@ from sqlalchemy import create_engine, func, text
 from sqlalchemy.orm import Session, sessionmaker
 from streamlit_autorefresh import st_autorefresh
 
-from src.db.models import Alert, TelemetryLog
+from src.db.models import Alert, Base, TelemetryLog
 from src.db.crud import (
     create_alert_sync,
     dismiss_alert,
@@ -29,6 +29,7 @@ engine = create_engine(
     f"sqlite:///{SQLITE_DB_PATH}",
     connect_args={"check_same_thread": False},
 )
+Base.metadata.create_all(engine)  # ensure tables exist even if API hasn't started
 SessionLocal = sessionmaker(bind=engine)
 
 

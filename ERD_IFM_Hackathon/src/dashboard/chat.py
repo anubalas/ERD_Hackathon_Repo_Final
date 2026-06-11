@@ -15,6 +15,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from src.db.crud import acknowledge_alert
+from src.db.models import Base
 from src.agent.tools import execute_tool
 
 logger = logging.getLogger(__name__)
@@ -28,6 +29,7 @@ _engine = create_engine(
     f"sqlite:///{SQLITE_DB_PATH}",
     connect_args={"check_same_thread": False},
 )
+Base.metadata.create_all(_engine)  # ensure tables exist even if API hasn't started
 _SessionLocal = sessionmaker(bind=_engine)
 
 # ---------------------------------------------------------------------------
@@ -130,7 +132,19 @@ def _run_agent(history: list) -> tuple[str, object]:
     ]
 
     # ---- Convert history ----
-    messages = [{"role": "system", "content": CHAT_SYSTEM_PROMPT}]
+    system_content = CHAT_SYSTEM_PROMPT
+    ctx = st.session_state.get("alert_context")
+    if ctx:
+        system_content += (
+            f"\n\nACTIVE ALERT CONTEXT:\n"
+            f"- Device: {ctx.get('device_id')} ({ctx.get('device_type')})\n"
+            f"- Alert type: {ctx.get('alert_type')}\n"
+            f"- Batch: {ctx.get('batch_id')}\n"
+            f"- Sensor values: {ctx.get('sensor_values')}\n"
+            f"- Detail: {ctx.get('error_detail')}\n"
+            f"When the user refers to 'the alert' or 'the above alert', they mean this alert."
+        )
+    messages = [{"role": "system", "content": system_content}]
     for msg in history:
         if msg["role"] in ["user", "assistant"]:
             messages.append({
@@ -286,6 +300,13 @@ def render_chat_page() -> None:
             st.markdown(msg["content"])
             if msg.get("chart") is not None:
                 st.plotly_chart(msg["chart"], use_container_width=True)
+
+    # Auto-fire pending alert message injected by the dashboard
+    if st.session_state.pending_auto_message and not st.session_state.chat_history:
+        auto_msg = st.session_state.pending_auto_message
+        st.session_state.pending_auto_message = None
+        _process_message(auto_msg)
+        st.rerun()
 
     # Input
     user_input = st.chat_input("Type your message...")
