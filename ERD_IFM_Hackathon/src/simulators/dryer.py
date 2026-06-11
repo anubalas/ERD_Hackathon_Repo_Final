@@ -18,12 +18,12 @@ def make_reading(count: int) -> tuple[dict, bool]:
     humidity = round(random.uniform(10.0, 55.0), 1)
 
     breach = False
-    if count % 20 == 0 and count > 0:
-        temperature = 170.0  # above max 160°C
+    if random.random() < 0.25:
         breach = True
-    elif count % 25 == 0 and count > 0:
-        humidity = 75.0  # above max 60%
-        breach = True
+        if random.random() < 0.5:
+            temperature = round(random.uniform(161.0, 180.0), 1)  # above max 160°C
+        else:
+            humidity = round(random.uniform(61.0, 85.0), 1)  # above max 60%
 
     return {
         "device_id": "dryer-01",

@@ -19,12 +19,12 @@ def make_reading(count: int) -> tuple[dict, bool]:
     flow_rate = round(random.uniform(20.0, 180.0), 1)
 
     breach = False
-    if count % 20 == 0 and count > 0:
-        temperature = 60.0  # below min 72°C
+    if random.random() < 0.25:
         breach = True
-    elif count % 25 == 0 and count > 0:
-        ph = 2.8  # below min 3.5
-        breach = True
+        if random.random() < 0.5:
+            temperature = round(random.uniform(55.0, 71.9), 1)  # below min 72°C
+        else:
+            ph = round(random.uniform(2.0, 3.4), 2)  # below min 3.5
 
     return {
         "device_id": "past-01",

@@ -14,17 +14,17 @@ GREEN = "\033[92m"
 RESET = "\033[0m"
 
 
-def make_reading(count: int) -> dict:
+def make_reading(count: int) -> dict:  # count kept for API compatibility
     temperature = round(random.uniform(140.0, 180.0), 1)
     pressure = round(random.uniform(4.0, 8.0), 2)
 
     breach = False
-    if count % 20 == 0 and count > 0:
-        temperature = 210.0  # above max 200°C
+    if random.random() < 0.25:
         breach = True
-    elif count % 30 == 0 and count > 0:
-        pressure = 13.0  # above max 12 bar
-        breach = True
+        if random.random() < 0.5:
+            temperature = round(random.uniform(201.0, 220.0), 1)  # above max 200°C
+        else:
+            pressure = round(random.uniform(12.1, 15.0), 2)  # above max 12 bar
 
     return {
         "device_id": "boiler-line-1",
