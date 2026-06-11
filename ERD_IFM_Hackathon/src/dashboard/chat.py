@@ -25,11 +25,18 @@ CHROMA_PERSIST_DIR = os.getenv("CHROMA_PERSIST_DIR", "./chroma_db")
 
 MODEL_NAME = "gpt-4o-mini"
 
-_engine = create_engine(
-    f"sqlite:///{SQLITE_DB_PATH}",
-    connect_args={"check_same_thread": False},
-)
-Base.metadata.create_all(_engine)  # ensure tables exist even if API hasn't started
+
+@st.cache_resource
+def _get_engine():
+    eng = create_engine(
+        f"sqlite:///{SQLITE_DB_PATH}",
+        connect_args={"check_same_thread": False},
+    )
+    Base.metadata.create_all(eng)
+    return eng
+
+
+_engine = _get_engine()
 _SessionLocal = sessionmaker(bind=_engine)
 
 # ---------------------------------------------------------------------------

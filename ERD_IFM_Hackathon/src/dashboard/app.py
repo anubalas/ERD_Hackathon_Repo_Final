@@ -5,6 +5,9 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
+from dotenv import load_dotenv
+load_dotenv()  # must load before any os.getenv calls
+
 import pandas as pd
 import sqlalchemy.exc
 import streamlit as st
@@ -25,11 +28,18 @@ from src.db.crud import (
 
 SQLITE_DB_PATH = os.getenv("SQLITE_DB_PATH", "telemetry.db")
 
-engine = create_engine(
-    f"sqlite:///{SQLITE_DB_PATH}",
-    connect_args={"check_same_thread": False},
-)
-Base.metadata.create_all(engine)  # ensure tables exist even if API hasn't started
+
+@st.cache_resource
+def _get_engine():
+    eng = create_engine(
+        f"sqlite:///{SQLITE_DB_PATH}",
+        connect_args={"check_same_thread": False},
+    )
+    Base.metadata.create_all(eng)
+    return eng
+
+
+engine = _get_engine()
 SessionLocal = sessionmaker(bind=engine)
 
 
