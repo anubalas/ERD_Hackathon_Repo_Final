@@ -259,7 +259,9 @@ def execute_tool(tool_name: str, tool_input: dict, session, collection):
     logger.info("  [tool] executing: %s input=%s", tool_name, tool_input)
 
     if tool_name == "query_alerts_db":
-        return _query_alerts_db(session, **tool_input), None
+        # Remove free-text 'query' key — not a valid param for _query_alerts_db
+        structured = {k: v for k, v in tool_input.items() if k != "query"}
+        return _query_alerts_db(session, **structured), None
 
     if tool_name == "search_gmp_docs":
         return _search_gmp_docs(collection, tool_input.get("query", "")), None
